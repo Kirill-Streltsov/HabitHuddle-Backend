@@ -26,6 +26,7 @@ struct UserController {
         return user.toPublic()
     }
     
+    
     func getUser(req: Request) async throws -> User.Public {
         guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
             throw Abort(.notFound)
@@ -36,6 +37,24 @@ struct UserController {
     func getAllUsersHandler(_ req: Request) async throws -> [User.Public] {
         let users = try await User.query(on: req.db).all()
         return users.map { $0.toPublic() }
+    }
+    
+    func getUsersFriends(_ req: Request) async throws -> [User.Public] {
+        // Safely unwrap the userID
+        guard let userID = req.parameters.get("userID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Invalid or missing userID")
+        }
+
+        // Fetch user and eager-load friends
+        guard let user = try await User.query(on: req.db)
+            .with(\.$friends) // Eager-loading
+            .filter(\.$id == userID)
+            .first()
+        else {
+            throw Abort(.notFound)
+        }
+                
+        return user.friends.map { $0.toPublic() }
     }
 }
 

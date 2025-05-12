@@ -11,6 +11,7 @@ func routes(_ app: Application) throws {
     users.post("register", use: userController.register)
     users.get(":userID", use: userController.getUser)
     users.get(use: userController.getAllUsersHandler)
+    users.get(":userID", "friends", use: userController.getUsersFriends)
     
     let friends = api.grouped("friends")
     friends.post("add", use: friendController.addFriend)

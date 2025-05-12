@@ -12,7 +12,7 @@ struct CreateUser: AsyncMigration {
         try await database.schema("users")
             .id()
             .field("email", .string, .required)
-            .field("passwordHash", .string, .required)
+            .field("password_hash", .string, .required)
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
             .unique(on: "email") // ensure email is unique

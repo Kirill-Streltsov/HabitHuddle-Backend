@@ -37,6 +37,7 @@ final class User: Model, Content, @unchecked Sendable {
     init(id: UUID? = nil, email: String, passwordHash: String) {
         self.id = id
         self.email = email
+        self.createdAt = Date()
         self.passwordHash = passwordHash
     }
 }
@@ -45,9 +46,10 @@ extension User {
     struct Public: Content {
         var id: UUID?
         var email: String
+        var createdAt: Date?
     }
 
     func toPublic() -> Public {
-        Public(id: self.id, email: self.email)
+        Public(id: self.id, email: self.email, createdAt: self.createdAt)
     }
 }
