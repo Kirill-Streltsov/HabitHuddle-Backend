@@ -14,7 +14,7 @@ enum HabitFrequency: String, Codable {
     case monthly
 }
 
-final class Habit: Model, Content {
+final class Habit: Model, Content, @unchecked Sendable {
     static let schema = "habits"
 
     @ID(key: .id)
@@ -33,7 +33,7 @@ final class Habit: Model, Content {
     var frequency: HabitFrequency
 
     @Field(key: "reminder_time")
-    var reminderTime: Time
+    var reminderTime: Date?
 
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
@@ -43,7 +43,7 @@ final class Habit: Model, Content {
 
     init() {}
 
-    init(id: UUID? = nil, userID: UUID, name: String, description: String?, frequency: HabitFrequency, reminderTime: Time) {
+    init(id: UUID? = nil, userID: UUID, name: String, description: String?, frequency: HabitFrequency, reminderTime: Date?) {
         self.id = id
         self.$user.id = userID
         self.name = name

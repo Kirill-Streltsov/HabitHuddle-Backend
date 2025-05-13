@@ -8,7 +8,7 @@
 import Fluent
 
 struct CreateHabit: AsyncMigration {
-    func prepare(on database: Database) async throws {
+    func prepare(on database: any Database) async throws {
         try await database.schema("habits")
             .id()
             .field("user_id", .uuid, .required, .references("users", "id", onDelete: .cascade))
@@ -21,7 +21,7 @@ struct CreateHabit: AsyncMigration {
             .create()
     }
 
-    func revert(on database: Database) async throws {
+    func revert(on database: any Database) async throws {
         try await database.schema("habits").delete()
     }
 }
