@@ -20,8 +20,8 @@ final class User: Model, Content, @unchecked Sendable {
     @Field(key: "password_hash")
     var passwordHash: String
     
-//    @Children(for: \.$user)
-//    var habits: [Habit]
+    @Children(for: \.$user)
+    var habits: [Habit]
     
     @Siblings(through: UserFriend.self, from: \.$user, to: \.$friend)
     var friends: [User]
