@@ -26,6 +26,12 @@ struct UserController {
         return user.toPublic()
     }
     
+    func login(req: Request) async throws -> UserToken {
+        let user = try req.auth.require(User.self)
+        let token = try user.generateToken()
+        try await token.save(on: req.db)
+        return token
+    }
     
     func getUser(req: Request) async throws -> User.Public {
         guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
@@ -44,7 +50,7 @@ struct UserController {
         guard let userID = req.parameters.get("userID", as: UUID.self) else {
             throw Abort(.badRequest, reason: "Invalid or missing userID")
         }
-
+        
         // Fetch user and eager-load friends
         guard let user = try await User.query(on: req.db)
             .with(\.$friends) // Eager-loading
@@ -53,7 +59,7 @@ struct UserController {
         else {
             throw Abort(.notFound)
         }
-                
+        
         return user.friends.map { $0.toPublic() }
     }
 }
