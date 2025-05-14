@@ -62,6 +62,17 @@ struct UserController {
         
         return user.friends.map { $0.toPublic() }
     }
+    
+    func getMyFriends(_ req: Request) async throws -> [User.Public] {
+        // 1. Get the authenticated user from the token
+        let user = try req.auth.require(User.self)
+
+        // 2. Eager-load their friends (since friends is a siblings relation)
+        try await user.$friends.load(on: req.db)
+
+        // 3. Convert to public representation
+        return user.friends.map { $0.toPublic() }
+    }
 }
 
 struct CreateUserRequest: Content {

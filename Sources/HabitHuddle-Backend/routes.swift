@@ -29,7 +29,12 @@ func routes(_ app: Application) throws {
     
     users.get(":userID", use: userController.getUser)
     users.get(use: userController.getAllUsersHandler)
+    
+    // Getting friends from userID
     users.get(":userID", "friends", use: userController.getUsersFriends)
+    
+    // Getting friends with token
+    tokenProtected.get("users", "me", "friends", use: userController.getMyFriends)
     
     let friends = api.grouped("friends")
     friends.post("add", use: friendController.addFriend)
