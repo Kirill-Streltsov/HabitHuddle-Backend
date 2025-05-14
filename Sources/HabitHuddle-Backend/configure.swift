@@ -20,6 +20,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateUser())
     app.migrations.add(CreateUserFriend())
     app.migrations.add(CreateHabit())
+    app.migrations.add(CreateUserToken())
 
     // register routes
     try routes(app)
