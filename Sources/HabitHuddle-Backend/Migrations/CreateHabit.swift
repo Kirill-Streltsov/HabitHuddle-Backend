@@ -15,7 +15,7 @@ struct CreateHabit: AsyncMigration {
             .field("name", .string, .required)
             .field("description", .string)
             .field("frequency", .string, .required)
-            .field("reminder_time", .time, .required)
+            .field("reminder_time", .datetime)
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
             .create()
