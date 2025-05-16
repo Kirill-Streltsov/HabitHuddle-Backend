@@ -10,12 +10,12 @@ import Vapor
 struct FriendController {
     func addFriend(req: Request) async throws -> HTTPStatus {
         let data = try req.content.decode(AddFriendRequest.self)
+        let user = try req.auth.require(User.self)
 
-        guard let user = try await User.find(data.userID, on: req.db),
-              let friend = try await User.find(data.friendID, on: req.db) else {
+        guard let friend = try await User.find(data.friendID, on: req.db) else {
             throw Abort(.notFound)
         }
-
+        
         // Add both directions
         let link1 = UserFriend(userID: try user.requireID(), friendID: try friend.requireID())
         let link2 = UserFriend(userID: try friend.requireID(), friendID: try user.requireID())
@@ -28,6 +28,5 @@ struct FriendController {
 }
 
 struct AddFriendRequest: Content {
-    let userID: UUID
     let friendID: UUID
 }
