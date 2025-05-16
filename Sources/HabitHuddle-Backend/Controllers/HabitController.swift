@@ -49,6 +49,18 @@ struct HabitController {
         
         return user.habits
     }
+    
+    func deleteHabit(req: Request) async throws -> Habit {
+        guard let habitID = req.parameters.get("habitID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Invalid or missing habitID")
+        }
+        
+        guard let habit = try await Habit.find(habitID, on: req.db) else {
+            throw Abort(.notFound, reason: "Could not found habit with habitID: \(habitID)")
+        }
+        try await habit.delete(on: req.db)
+        return habit
+    }
 }
 
 struct HabitDTO: Content {
