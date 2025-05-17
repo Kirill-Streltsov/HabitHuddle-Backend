@@ -8,11 +8,24 @@
 import Vapor
 import Fluent
 
-struct HabitController {
+struct HabitController: RouteCollection {
+    
+    func boot(routes: any RoutesBuilder) throws {
+        let tokenProtected = routes.grouped(UserToken.authenticator())
+        let habits = tokenProtected.grouped("habits")
+        
+        habits.post("create", use: createHabit)
+        habits.get(use: getMyHabits)
+        habits.put(":habitID", use: updateHabit)
+        habits.delete("delete", ":habitID", use: deleteHabit)
+        
+        routes.get("habits", ":userID", use: getUserHabits)
+    }
+    
     func createHabit(req: Request) async throws -> Habit {
         let user = try req.auth.require(User.self)
         let data = try req.content.decode(HabitData.self)
-                
+        
         guard let userID = user.id else {
             throw Abort(.noContent)
         }
@@ -63,9 +76,9 @@ struct HabitController {
         guard let habit = try await Habit.find(habitID, on: req.db), habit.$user.id == user.id else {
             throw Abort(.notFound, reason: "Habit not found or not owned by user")
         }
-
+        
         let updateData = try req.content.decode(HabitData.self)
-
+        
         if let name = updateData.name {
             habit.name = name
         }
@@ -78,7 +91,7 @@ struct HabitController {
         if let reminderTime = updateData.reminderTime {
             habit.reminderTime = reminderTime
         }
-
+        
         try await habit.save(on: req.db)
         return habit
     }

@@ -23,6 +23,12 @@ final class User: Model, Content, @unchecked Sendable {
     @Children(for: \.$user)
     var habits: [Habit]
     
+    @Children(for: \.$receiver)
+    var receivedChallenges: [Challenge]
+    
+    @Children(for: \.$initiator)
+    var sentChallenges: [Challenge]
+    
     @Siblings(through: UserFriend.self, from: \.$user, to: \.$friend)
     var friends: [User]
     

@@ -8,7 +8,21 @@
 import Vapor
 import Fluent
 
-struct UserController {
+struct UserController: RouteCollection {
+    
+    func boot(routes: any RoutesBuilder) throws {
+        let users = routes.grouped("users")
+        users.get(":userID", use: getUser)
+        users.get(use: getAllUsersHandler)
+        
+        let tokenProtected = routes.grouped(UserToken.authenticator())
+        tokenProtected.put("users", "me", use: updateUser)
+        
+        // Friend subroutes
+        users.get(":userID", "friends", use: getUsersFriends)
+        tokenProtected.get("users", "friends", use: getMyFriends)
+    }
+    
     func register(req: Request) async throws -> User.Public {
         let data = try req.content.decode(UserData.self)
         guard let email = data.email, let password = data.password else {
@@ -36,24 +50,28 @@ struct UserController {
         return token
     }
     
-    func getUser(req: Request) async throws -> User.Public {
+    func getUser(req: Request) async throws -> User {
         guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
             throw Abort(.notFound)
         }
-        return user.toPublic()
+        return user
     }
-
-    func getAllUsersHandler(_ req: Request) async throws -> [User.Public] {
-        let users = try await User.query(on: req.db).all()
-        return users.map { $0.toPublic() }
+    
+    // MARK: - Change or remove it after development
+    func getAllUsersHandler(_ req: Request) async throws -> [User] {
+        let users = try await User.query(on: req.db)
+            .with(\.$habits)
+            .with(\.$friends)
+            .all()
+        return users
     }
-
-    func getUsersFriends(_ req: Request) async throws -> [User.Public] {
+    
+    func getUsersFriends(_ req: Request) async throws -> [User] {
         // Safely unwrap the userID
         guard let userID = req.parameters.get("userID", as: UUID.self) else {
             throw Abort(.badRequest, reason: "Invalid or missing userID")
         }
-
+        
         // Fetch user and eager-load friends
         guard let user = try await User.query(on: req.db)
             .with(\.$friends) // Eager-loading
@@ -62,26 +80,26 @@ struct UserController {
         else {
             throw Abort(.notFound)
         }
-
-        return user.friends.map { $0.toPublic() }
-    }
-
-    func getMyFriends(_ req: Request) async throws -> [User.Public] {
-        // 1. Get the authenticated user from the token
-        let user = try req.auth.require(User.self)
-
-        // 2. Eager-load their friends (since friends is a siblings relation)
-        try await user.$friends.load(on: req.db)
-
-        // 3. Convert to public representation
-        return user.friends.map { $0.toPublic() }
+        
+        return user.friends
     }
     
-    func updateUser(_ req: Request) async throws -> User.Public {
+    func getMyFriends(_ req: Request) async throws -> [User] {
+        // 1. Get the authenticated user from the token
+        let user = try req.auth.require(User.self)
+        
+        // 2. Eager-load their friends (since friends is a siblings relation)
+        try await user.$friends.load(on: req.db)
+        
+        // 3. Convert to public representation
+        return user.friends
+    }
+    
+    func updateUser(_ req: Request) async throws -> User {
         let user = try req.auth.require(User.self)
         let updateData = try req.content.decode(UserData.self)
         
-
+        
         if let email = updateData.email {
             // Ensure email doesn't already exist
             if try await User.query(on: req.db).filter(\.$email == email).first() != nil {
@@ -92,9 +110,9 @@ struct UserController {
         if let password = updateData.password {
             user.passwordHash = try Bcrypt.hash(password)
         }
-
+        
         try await user.save(on: req.db)
-        return user.toPublic()
+        return user
     }
 }
 
