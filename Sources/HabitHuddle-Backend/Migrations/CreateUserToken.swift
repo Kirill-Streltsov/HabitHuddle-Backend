@@ -20,5 +20,4 @@ struct CreateUserToken: AsyncMigration {
     func revert(on database: any Database) async throws {
         try await database.schema("user_tokens").delete()
     }
-    
 }
