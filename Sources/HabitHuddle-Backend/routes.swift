@@ -30,10 +30,12 @@ func routes(_ app: Application) throws {
     let users = api.grouped("users")
     users.get(":userID", use: userController.getUser)
     users.get(use: userController.getAllUsersHandler)
+    tokenProtected.put("users", "me", use: userController.updateUser)
     
     // MARK: - Friend Routes
     users.get(":userID", "friends", use: userController.getUsersFriends)
-    tokenProtected.get("users", "me", "friends", use: userController.getMyFriends)
+    tokenProtected.get("users", "friends", use: userController.getMyFriends)
+    tokenProtected.delete("friends", ":friendID", use: friendController.removeFriend)
     
     let friends = tokenProtected.grouped("friends")
     friends.post("add", use: friendController.addFriend)
@@ -42,6 +44,7 @@ func routes(_ app: Application) throws {
     let habits = tokenProtected.grouped("habits")
     habits.post("me", "create", use: habitController.createHabit)
     habits.get("me", use: habitController.getMyHabits)
+    habits.put("me", ":habitID", use: habitController.updateHabit)
     habits.delete("me", "delete", ":habitID", use: habitController.deleteHabit)
     
     api.get("habits", ":userID", use: habitController.getUserHabits)

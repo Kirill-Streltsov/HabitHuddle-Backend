@@ -52,3 +52,10 @@ final class Habit: Model, Content, @unchecked Sendable {
         self.reminderTime = reminderTime
     }
 }
+
+struct HabitData: Content {
+    var name: String?
+    var description: String?
+    var frequency: HabitFrequency?
+    var reminderTime: Date?
+}

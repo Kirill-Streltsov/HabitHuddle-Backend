@@ -25,6 +25,21 @@ struct FriendController {
 
         return .ok
     }
+    
+    func removeFriend(_ req: Request) async throws -> HTTPStatus {
+        let user = try req.auth.require(User.self)
+
+        guard let friendID = req.parameters.get("friendID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Missing or invalid friend ID")
+        }
+
+        guard let friend = try await User.find(friendID, on: req.db) else {
+            throw Abort(.notFound, reason: "Friend not found")
+        }
+
+        try await user.$friends.detach(friend, on: req.db)
+        return .ok
+    }
 }
 
 struct AddFriendRequest: Content {

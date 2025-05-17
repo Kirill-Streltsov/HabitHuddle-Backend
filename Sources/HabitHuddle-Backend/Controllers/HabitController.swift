@@ -11,13 +11,17 @@ import Fluent
 struct HabitController {
     func createHabit(req: Request) async throws -> Habit {
         let user = try req.auth.require(User.self)
-        let data = try req.content.decode(HabitDTO.self)
+        let data = try req.content.decode(HabitData.self)
                 
         guard let userID = user.id else {
             throw Abort(.noContent)
         }
         
-        let habit = Habit(userID: userID, name: data.name, description: data.description, frequency: .daily, reminderTime: Date())
+        guard let habitName = data.name else {
+            throw Abort(.badRequest, reason: "No habit name included")
+        }
+        
+        let habit = Habit(userID: userID, name: habitName, description: data.description, frequency: .daily, reminderTime: Date())
         try await habit.save(on: req.db)
         return habit
     }
@@ -50,6 +54,35 @@ struct HabitController {
         return user.habits
     }
     
+    func updateHabit(_ req: Request) async throws -> Habit {
+        let user = try req.auth.require(User.self)
+        guard let habitID = req.parameters.get("habitID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Missing habit ID")
+        }
+        
+        guard let habit = try await Habit.find(habitID, on: req.db), habit.$user.id == user.id else {
+            throw Abort(.notFound, reason: "Habit not found or not owned by user")
+        }
+
+        let updateData = try req.content.decode(HabitData.self)
+
+        if let name = updateData.name {
+            habit.name = name
+        }
+        if let description = updateData.description {
+            habit.description = description
+        }
+        if let frequency = updateData.frequency {
+            habit.frequency = frequency
+        }
+        if let reminderTime = updateData.reminderTime {
+            habit.reminderTime = reminderTime
+        }
+
+        try await habit.save(on: req.db)
+        return habit
+    }
+    
     func deleteHabit(req: Request) async throws -> Habit {
         guard let habitID = req.parameters.get("habitID", as: UUID.self) else {
             throw Abort(.badRequest, reason: "Invalid or missing habitID")
@@ -61,9 +94,4 @@ struct HabitController {
         try await habit.delete(on: req.db)
         return habit
     }
-}
-
-struct HabitDTO: Content {
-    let name: String
-    let description: String
 }
