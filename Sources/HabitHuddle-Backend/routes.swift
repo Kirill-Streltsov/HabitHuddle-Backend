@@ -42,10 +42,10 @@ func routes(_ app: Application) throws {
     
     // MARK: - Habit Routes
     let habits = tokenProtected.grouped("habits")
-    habits.post("me", "create", use: habitController.createHabit)
-    habits.get("me", use: habitController.getMyHabits)
-    habits.put("me", ":habitID", use: habitController.updateHabit)
-    habits.delete("me", "delete", ":habitID", use: habitController.deleteHabit)
+    habits.post("create", use: habitController.createHabit)
+    habits.get(use: habitController.getMyHabits)
+    habits.put(":habitID", use: habitController.updateHabit)
+    habits.delete("delete", ":habitID", use: habitController.deleteHabit)
     
     api.get("habits", ":userID", use: habitController.getUserHabits)
 }
