@@ -81,6 +81,7 @@ struct ChallengeController: RouteCollection {
             .all()
     }
     
+    // MARK: Delete or change logic - otherwise too wasteful
     // 5. Get all challenges
     func getAllChallenges(_ req: Request) async throws -> [Challenge] {
         return try await Challenge.query(on: req.db)
