@@ -25,19 +25,19 @@ struct UserController: RouteCollection {
     
     func register(req: Request) async throws -> User.Public {
         let data = try req.content.decode(UserData.self)
-        guard let email = data.email, let password = data.password else {
-            throw Abort(.badRequest, reason: "No email or data included")
+        guard let username = data.username, let password = data.password else {
+            throw Abort(.badRequest, reason: "No username or data included")
         }
         
-        // Ensure email doesn't already exist
-        if try await User.query(on: req.db).filter(\.$email == email).first() != nil {
-            throw Abort(.conflict, reason: "Email already registered.")
+        // Ensure username doesn't already exist
+        if try await User.query(on: req.db).filter(\.$username == username).first() != nil {
+            throw Abort(.conflict, reason: "Username already registered.")
         }
         
         // Hash the password
         let hash = try await req.password.async.hash(password)
         
-        let user = User(email: email, passwordHash: hash)
+        let user = User(username: username, passwordHash: hash)
         try await user.save(on: req.db)
         
         return user.toPublic()
@@ -100,12 +100,12 @@ struct UserController: RouteCollection {
         let updateData = try req.content.decode(UserData.self)
         
         
-        if let email = updateData.email {
-            // Ensure email doesn't already exist
-            if try await User.query(on: req.db).filter(\.$email == email).first() != nil {
-                throw Abort(.conflict, reason: "Email already in use")
+        if let username = updateData.username {
+            // Ensure username doesn't already exist
+            if try await User.query(on: req.db).filter(\.$username == username).first() != nil {
+                throw Abort(.conflict, reason: "Username already in use")
             }
-            user.email = email
+            user.username = username
         }
         if let password = updateData.password {
             user.passwordHash = try Bcrypt.hash(password)
@@ -117,6 +117,6 @@ struct UserController: RouteCollection {
 }
 
 struct UserData: Content {
-    var email: String?
+    var username: String?
     var password: String?
 }

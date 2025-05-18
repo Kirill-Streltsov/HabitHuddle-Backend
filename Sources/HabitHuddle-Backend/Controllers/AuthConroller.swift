@@ -23,15 +23,14 @@ struct AuthController: RouteCollection {
 
     // MARK: - Register
     func register(req: Request) async throws -> User.Public {
-        struct RegisterData: Content {
-            let email: String
-            let password: String
+
+        let data = try req.content.decode(UserData.self)
+        guard let username = data.username, let password = data.password else {
+            throw Abort(.badRequest, reason: "No username or data included")
         }
+        let hash = try Bcrypt.hash(password)
 
-        let data = try req.content.decode(RegisterData.self)
-        let hash = try Bcrypt.hash(data.password)
-
-        let user = User(email: data.email, passwordHash: hash)
+        let user = User(username: username, passwordHash: hash)
         try await user.save(on: req.db)
 
         return user.toPublic()

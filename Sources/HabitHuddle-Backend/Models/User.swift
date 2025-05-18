@@ -14,8 +14,8 @@ final class User: Model, Content, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
     
-    @Field(key: "email")
-    var email: String
+    @Field(key: "username")
+    var username: String
     
     @Field(key: "password_hash")
     var passwordHash: String
@@ -40,9 +40,9 @@ final class User: Model, Content, @unchecked Sendable {
     
     init() {}
     
-    init(id: UUID? = nil, email: String, passwordHash: String) {
+    init(id: UUID? = nil, username: String, passwordHash: String) {
         self.id = id
-        self.email = email
+        self.username = username
         self.createdAt = Date()
         self.passwordHash = passwordHash
     }
@@ -50,7 +50,7 @@ final class User: Model, Content, @unchecked Sendable {
 
 extension User: ModelAuthenticatable {
     static var usernameKey: KeyPath<User, Field<String>> {
-        \User.$email
+        \User.$username
     }
     
     static var passwordHashKey: KeyPath<User, Field<String>> {
@@ -67,12 +67,12 @@ extension User: ModelAuthenticatable {
 extension User {
     struct Public: Content {
         var id: UUID?
-        var email: String
+        var username: String
         var createdAt: Date?
     }
 
     func toPublic() -> Public {
-        Public(id: self.id, email: self.email, createdAt: self.createdAt)
+        Public(id: self.id, username: self.username, createdAt: self.createdAt)
     }
 }
 

@@ -11,11 +11,11 @@ struct CreateUser: AsyncMigration {
     func prepare(on database: any Database) async throws {
         try await database.schema("users")
             .id()
-            .field("email", .string, .required)
+            .field("username", .string, .required)
             .field("password_hash", .string, .required)
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
-            .unique(on: "email") // ensure email is unique
+            .unique(on: "username") // ensure username is unique
             .create()
     }
 
