@@ -39,11 +39,11 @@ final class Challenge: Model, Content, @unchecked Sendable {
     @Field(key: "status")
     var status: ChallengeStatus
 
-//    @Field(key: "start_date")
-//    var startDate: Date
-//
-//    @Field(key: "end_date")
-//    var endDate: Date
+    @Field(key: "start_date")
+    var startDate: Date
+
+    @Field(key: "end_date")
+    var endDate: Date
 
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
@@ -56,7 +56,9 @@ final class Challenge: Model, Content, @unchecked Sendable {
         receiverID: UUID,
         habitID: UUID,
         type: ChallengeType,
-        status: ChallengeStatus = .pending
+        status: ChallengeStatus = .pending,
+        startDate: Date,
+        endDate: Date
     ) {
         self.id = id
         self.$initiator.id = initiatorID
@@ -64,5 +66,7 @@ final class Challenge: Model, Content, @unchecked Sendable {
         self.$habit.id = habitID
         self.type = type
         self.status = status
+        self.startDate = startDate
+        self.endDate = endDate
     }
 }

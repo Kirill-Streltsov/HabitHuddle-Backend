@@ -27,7 +27,9 @@ struct ChallengeController: RouteCollection {
             initiatorID: try user.requireID(),
             receiverID: data.receiverID,
             habitID: data.habitID,
-            type: data.type
+            type: data.type,
+            startDate: Date(),
+            endDate: Date()
         )
 
         try await challenge.save(on: req.db)
@@ -45,6 +47,8 @@ struct ChallengeController: RouteCollection {
         }
 
         challenge.status = .accepted
+        challenge.startDate = Date()
+        challenge.endDate = Date()
         try await challenge.update(on: req.db)
         return .ok
     }

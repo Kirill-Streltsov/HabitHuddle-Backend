@@ -16,8 +16,8 @@ struct CreateChallenge: AsyncMigration {
             .field("habit_id", .uuid, .required, .references("habits", "id", onDelete: .cascade))
             .field("type", .string, .required)
             .field("status", .string, .required)
-//            .field("start_date", .date, .required)
-//            .field("end_date", .date, .required)
+            .field("start_date", .date, .required)
+            .field("end_date", .date, .required)
             .field("created_at", .datetime)
             .create()
     }
