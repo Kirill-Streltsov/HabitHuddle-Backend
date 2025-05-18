@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "HabitHuddle-Backend",
     platforms: [
-       .macOS(.v13)
+        .macOS(.v13),
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
@@ -16,7 +16,7 @@ let package = Package(
         // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
         //
-        .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0")
+        .package(url: "https://github.com/vapor/jwt.git", from: "4.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -38,7 +38,7 @@ let package = Package(
                 .product(name: "VaporTesting", package: "vapor"),
             ],
             swiftSettings: swiftSettings
-        )
+        ),
     ]
 )
 

@@ -8,7 +8,6 @@
 import Vapor
 
 struct FriendController: RouteCollection {
-
     func boot(routes: any RoutesBuilder) throws {
         let friends = routes.grouped(UserToken.authenticator()).grouped("friends")
         friends.post("add", use: addFriend)
@@ -24,8 +23,8 @@ struct FriendController: RouteCollection {
         }
 
         // Add both directions
-        let link1 = UserFriend(userID: try user.requireID(), friendID: try friend.requireID())
-        let link2 = UserFriend(userID: try friend.requireID(), friendID: try user.requireID())
+        let link1 = try UserFriend(userID: user.requireID(), friendID: friend.requireID())
+        let link2 = try UserFriend(userID: friend.requireID(), friendID: user.requireID())
 
         try await link1.save(on: req.db)
         try await link2.save(on: req.db)

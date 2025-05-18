@@ -22,21 +22,22 @@ struct AuthController: RouteCollection {
     }
 
     // MARK: - Register
-    func register(req: Request) async throws -> User.Public {
 
+    func register(req: Request) async throws -> User.Public {
         let data = try req.content.decode(UserData.self)
-        guard let username = data.username, let password = data.password else {
+        guard let username = data.username, let password = data.password, let name = data.name else {
             throw Abort(.badRequest, reason: "No username or data included")
         }
         let hash = try Bcrypt.hash(password)
 
-        let user = User(username: username, passwordHash: hash)
+        let user = User(username: username, name: name, passwordHash: hash)
         try await user.save(on: req.db)
 
         return user.toPublic()
     }
 
     // MARK: - Login
+
     func login(req: Request) async throws -> TokenResponse {
         let user = try req.auth.require(User.self)
         let token = try user.generateToken()
@@ -46,12 +47,14 @@ struct AuthController: RouteCollection {
     }
 
     // MARK: - Get Authenticated User
+
     func getMe(req: Request) throws -> User.Public {
         let user = try req.auth.require(User.self)
         return user.toPublic()
     }
 
     // MARK: - Logout
+
     func logout(req: Request) async throws -> HTTPStatus {
         let token = try req.auth.require(UserToken.self)
         try await token.delete(on: req.db)

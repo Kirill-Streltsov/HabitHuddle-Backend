@@ -22,7 +22,7 @@ final class UserFriend: Model, @unchecked Sendable {
     init() {}
 
     init(userID: UUID, friendID: UUID) {
-        self.$user.id = userID
-        self.$friend.id = friendID
+        $user.id = userID
+        $friend.id = friendID
     }
 }

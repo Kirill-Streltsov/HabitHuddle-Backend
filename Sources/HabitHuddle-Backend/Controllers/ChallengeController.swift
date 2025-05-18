@@ -23,8 +23,8 @@ struct ChallengeController: RouteCollection {
         let user = try req.auth.require(User.self)
         let data = try req.content.decode(CreateChallengeRequest.self)
 
-        let challenge = Challenge(
-            initiatorID: try user.requireID(),
+        let challenge = try Challenge(
+            initiatorID: user.requireID(),
             receiverID: data.receiverID,
             habitID: data.habitID,
             type: data.type,
@@ -86,6 +86,7 @@ struct ChallengeController: RouteCollection {
     }
 
     // MARK: Delete or change logic - otherwise too wasteful
+
     // 5. Get all challenges
     func getAllChallenges(_ req: Request) async throws -> [Challenge] {
         return try await Challenge.query(on: req.db)

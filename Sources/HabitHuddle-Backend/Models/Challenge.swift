@@ -12,6 +12,7 @@ enum ChallengeType: String, Codable {
     case competitive
     case supportive
 }
+
 enum ChallengeStatus: String, Codable {
     case pending
     case accepted
@@ -20,7 +21,7 @@ enum ChallengeStatus: String, Codable {
 
 final class Challenge: Model, Content, @unchecked Sendable {
     static let schema = "challenges"
-    
+
     @ID(key: .id)
     var id: UUID?
 
@@ -61,9 +62,9 @@ final class Challenge: Model, Content, @unchecked Sendable {
         endDate: Date
     ) {
         self.id = id
-        self.$initiator.id = initiatorID
-        self.$receiver.id = receiverID
-        self.$habit.id = habitID
+        $initiator.id = initiatorID
+        $receiver.id = receiverID
+        $habit.id = habitID
         self.type = type
         self.status = status
         self.startDate = startDate

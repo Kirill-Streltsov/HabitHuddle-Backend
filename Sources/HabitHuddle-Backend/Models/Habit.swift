@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Habit.swift
 //  HabitHuddle-Backend
 //
 //  Created by Kirill on 13.05.25.
@@ -45,7 +45,7 @@ final class Habit: Model, Content, @unchecked Sendable {
 
     init(id: UUID? = nil, userID: UUID, name: String, description: String?, frequency: HabitFrequency, reminderTime: Date?) {
         self.id = id
-        self.$user.id = userID
+        $user.id = userID
         self.name = name
         self.description = description
         self.frequency = frequency
