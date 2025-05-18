@@ -80,7 +80,7 @@ struct ChallengeController: RouteCollection {
             .with(\.$habit)
             .all()
     }
-    
+
     // MARK: Delete or change logic - otherwise too wasteful
     // 5. Get all challenges
     func getAllChallenges(_ req: Request) async throws -> [Challenge] {
