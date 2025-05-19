@@ -41,12 +41,12 @@ struct AuthController: RouteCollection {
 
     // MARK: - Login
 
-    func login(req: Request) async throws -> TokenResponse {
+    func login(req: Request) async throws -> AuthResponse {
         let user = try req.auth.require(User.self)
         let token = try user.generateToken()
         try await token.save(on: req.db)
 
-        return TokenResponse(token: token.value)
+        return AuthResponse(token: token.value, user: user.toPublic())
     }
 
     // MARK: - Get Authenticated User
