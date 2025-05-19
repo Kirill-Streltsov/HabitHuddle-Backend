@@ -23,7 +23,7 @@ struct AuthController: RouteCollection {
 
     // MARK: - Register
 
-    func register(req: Request) async throws -> User.Public {
+    func register(req: Request) async throws -> AuthResponse {
         let data = try req.content.decode(UserData.self)
         guard let username = data.username, let password = data.password, let name = data.name else {
             throw Abort(.badRequest, reason: "No username or data included")
@@ -32,8 +32,11 @@ struct AuthController: RouteCollection {
 
         let user = User(username: username, name: name, passwordHash: hash)
         try await user.save(on: req.db)
+        
+        let token = try user.generateToken()
+        try await token.save(on: req.db)
 
-        return user.toPublic()
+        return AuthResponse(token: token.value, user: user.toPublic())
     }
 
     // MARK: - Login
@@ -64,4 +67,9 @@ struct AuthController: RouteCollection {
 
 struct TokenResponse: Content {
     let token: String
+}
+
+struct AuthResponse: Content, Codable {
+    let token: String
+    let user: User.Public
 }
